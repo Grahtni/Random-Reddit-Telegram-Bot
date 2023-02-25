@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "grammy": "^1.13.1",
+    "reddit-posts": "^1.0.4"
+  }
+}
