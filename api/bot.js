@@ -90,8 +90,8 @@ bot.on("msg", async (ctx) => {
       })
       .catch((error) => console.error(error));
     try {
-      for (let i = 0; i < 5; i++) {
-        if (i == 4) {
+      for (let i = 0; i < 7; i++) {
+        if (i == 6) {
           await ctx
             .reply(
               "*Failed to get posts. Are you sure you sent a valid subreddit name?*",
@@ -106,29 +106,25 @@ bot.on("msg", async (ctx) => {
         const title = data.title.replace(markdownChars, "\\$&");
         const author = data.Author.replace(markdownChars, "\\$&");
 
-        /* if (extension === ".jpg") {
-        await ctx.replyWithPhoto(data.ImageURL, {
-          reply_to_message_id: ctx.msg.message_id,
-          caption: `[${title}](${data.url})\n${data.UpVotes} upvotes\nBy ${author}`,
-          parse_mode: "Markdown",
-        });
-      } */
-
-        if (data.ImageURL.match("gfycat")) {
+        if (extension === ".jpg") {
+          await ctx.replyWithPhoto(data.ImageURL, {
+            caption: `[${title}](${data.url})\n${data.UpVotes} upvotes\nBy ${author}`,
+            parse_mode: "Markdown",
+          });
+          break;
+        } else if (data.ImageURL.match("gfycat")) {
           const id = data.ImageURL.split("/").pop();
           console.log(id);
           const post = await gfycat.getPost(id);
           const link = post.sources.find((obj) => obj.type === "mp4").url;
           console.log(link);
           await ctx.replyWithVideo(link, {
-            reply_to_message_id: ctx.msg.message_id,
             caption: `[${title}](${data.url})\n${data.UpVotes} upvotes\nBy ${author}`,
             parse_mode: "Markdown",
           });
           break;
         } else if (extension === ".gif" || extension === ".mp4") {
           await ctx.replyWithVideo(data.ImageURL, {
-            reply_to_message_id: ctx.msg.message_id,
             caption: `[${title}](${data.url})\n${data.UpVotes} upvotes\nBy ${author}`,
             parse_mode: "Markdown",
           });
@@ -143,7 +139,6 @@ bot.on("msg", async (ctx) => {
           await ctx.reply(
             `[${title}](${data.url})\n${data.UpVotes} upvotes\nBy ${author}`,
             {
-              reply_to_message_id: ctx.msg.message_id,
               parse_mode: "Markdown",
             }
           );
