@@ -78,6 +78,7 @@ bot.command("help", async (ctx) => {
 
 bot.on("msg", async (ctx) => {
   console.log("Query received:", ctx.msg.text, "from", ctx.from.id);
+
   if (!/^[a-zA-Z0-9_-]+$/.test(ctx.msg.text)) {
     await ctx.reply("*Send a valid subreddit name like cats or aww.*", {
       parse_mode: "Markdown",
@@ -90,14 +91,8 @@ bot.on("msg", async (ctx) => {
       })
       .catch((error) => console.error(error));
     try {
-      for (let i = 0; i < 7; i++) {
-        if (i == 6) {
-          await ctx
-            .reply(
-              "*Failed to get posts. Are you sure you sent a valid subreddit name?*",
-              { parse_mode: "Markdown" }
-            )
-            .catch((e) => console.error(e));
+      for (let i = 0; i < 5; i++) {
+        if (i == 4) {
           break;
         }
         const data = await RandomReddit.GetRandompost(ctx.msg.text);
@@ -106,12 +101,20 @@ bot.on("msg", async (ctx) => {
         const title = data.title.replace(markdownChars, "\\$&");
         const author = data.Author.replace(markdownChars, "\\$&");
 
-        if (extension === ".jpg") {
+        if (
+          extension === ".jpg" ||
+          (extension === ".png" && !data.ImageURL.match(".gif.jpg"))
+        ) {
           await ctx.replyWithPhoto(data.ImageURL, {
             caption: `[${title}](${data.url})\n${data.UpVotes} upvotes\nBy ${author}`,
             parse_mode: "Markdown",
           });
-          break;
+        } else if (data.ImageURL.match(".gif.jpg")) {
+          let newUrl = data.imageUrl.slice(0, data.imageUrl.lastIndexOf("."));
+          await ctx.replyWithVideo(newUrl, {
+            caption: `[${title}](${data.url})\n${data.UpVotes} upvotes\nBy ${author}`,
+            parse_mode: "Markdown",
+          });
         } else if (data.ImageURL.match("gfycat")) {
           const id = data.ImageURL.split("/").pop();
           console.log(id);
@@ -122,12 +125,13 @@ bot.on("msg", async (ctx) => {
             caption: `[${title}](${data.url})\n${data.UpVotes} upvotes\nBy ${author}`,
             parse_mode: "Markdown",
           });
-          break;
         } else if (extension === ".gif" || extension === ".mp4") {
           await ctx.replyWithVideo(data.ImageURL, {
             caption: `[${title}](${data.url})\n${data.UpVotes} upvotes\nBy ${author}`,
             parse_mode: "Markdown",
           });
+        } else if (data.ImageURL.match("v.redd.it")) {
+          await ctx.reply(ImageURL + "\n" + post);
           break;
         } else if (
           //data.ImageURL.match("v.redd.it") ||
